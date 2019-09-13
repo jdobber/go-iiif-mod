@@ -1,20 +1,17 @@
-package lib
+package image
 
 // https://github.com/h2non/bimg
 // https://github.com/jcupitt/libvips
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"image"
-	"image/gif"
 	_ "log"
 	"strconv"
 	"strings"
 
-	iiifconfig "github.com/go-iiif/go-iiif/config"
 	iiifsource "github.com/go-iiif/go-iiif/source"
+	iiifconfig "github.com/jdobber/go-iiif-mod/lib/config"
 	"gopkg.in/h2non/bimg.v1"
 )
 
@@ -39,30 +36,6 @@ func (d *VIPSDimensions) Height() int {
 
 func (d *VIPSDimensions) Width() int {
 	return d.imagesize.Width
-}
-
-/*
-
-See notes in NewVIPSImageFromConfigWithSource - basically getting an image's
-dimensions after the we've done the GIF conversion (just see the notes...)
-will make bimg/libvips sad so account for that in Dimensions() and create a
-pure Go implementation of the Dimensions interface (20160922/thisisaaronland)
-
-*/
-
-type GolangImageDimensions struct {
-	Dimensions
-	image image.Image
-}
-
-func (dims *GolangImageDimensions) Width() int {
-	bounds := dims.image.Bounds()
-	return bounds.Max.X
-}
-
-func (dims *GolangImageDimensions) Height() int {
-	bounds := dims.image.Bounds()
-	return bounds.Max.Y
 }
 
 // NewVIPSImage ...
@@ -145,25 +118,6 @@ func (im *VIPSImage) Rename(id string) error {
 }
 
 func (im *VIPSImage) Dimensions() (Dimensions, error) {
-
-	// see notes in NewVIPSImageFromConfigWithSource
-	// ideally this never gets triggered but just in case...
-
-	if im.isgif {
-
-		buf := bytes.NewBuffer(im.Body())
-		goimg, err := gif.Decode(buf)
-
-		if err != nil {
-			return nil, err
-		}
-
-		d := GolangImageDimensions{
-			image: goimg,
-		}
-
-		return &d, nil
-	}
 
 	sz, err := im.bimg.Size()
 

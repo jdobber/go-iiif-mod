@@ -1,9 +1,11 @@
-package lib
+package profile
 
 import (
 	"fmt"
 
 	iiifservice "github.com/go-iiif/go-iiif/service"
+	iiifimage "github.com/jdobber/go-iiif-mod/lib/image"
+	iiiflevel "github.com/jdobber/go-iiif-mod/lib/level"
 )
 
 type Profile struct {
@@ -19,7 +21,7 @@ type Profile struct {
 	Services []iiifservice.Service `json:"service,omitempty"`
 }
 
-func NewProfile(endpoint string, image Image, level Level) (*Profile, error) {
+func NewProfile(endpoint string, image iiifimage.Image, level iiiflevel.Level) (*Profile, error) {
 
 	dims, err := image.Dimensions()
 

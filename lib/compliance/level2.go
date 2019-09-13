@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	iiifconfig "github.com/jdobber/go-iiif-mod/config"
+	iiifconfig "github.com/jdobber/go-iiif-mod/lib/config"
 
 	_ "log"
 	"regexp"

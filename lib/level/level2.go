@@ -1,12 +1,12 @@
-package lib
+package level
 
 import (
 	_ "fmt"
 	_ "log"
 
-	iiifcompliance "github.com/jdobber/go-iiif-mod/compliance"
+	iiifcompliance "github.com/jdobber/go-iiif-mod/lib/compliance"
 
-	iiifconfig "github.com/jdobber/go-iiif-mod/config"
+	iiifconfig "github.com/jdobber/go-iiif-mod/lib/config"
 )
 
 type Level2 struct {

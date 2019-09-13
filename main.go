@@ -8,8 +8,12 @@ import (
 	"log"
 	"strings"
 
-	iiifconfig "github.com/jdobber/go-iiif-mod/config"
-	lib "github.com/jdobber/go-iiif-mod/lib"
+	iiifconfig "github.com/jdobber/go-iiif-mod/lib/config"
+	iiifimage "github.com/jdobber/go-iiif-mod/lib/image"
+	iiiflevel "github.com/jdobber/go-iiif-mod/lib/level"
+	iiifparser "github.com/jdobber/go-iiif-mod/lib/parser"
+	iiifprofile "github.com/jdobber/go-iiif-mod/lib/profile"
+	"github.com/whosonfirst/go-sanitize"
 )
 
 func check(e error) {
@@ -20,6 +24,7 @@ func check(e error) {
 
 func main() {
 	var cfg = flag.String("config", "", "Path to a valid go-iiif config file")
+	var uri = flag.String("uri", "", "a vaild iiif uri, e.g. colorize.jpg/full/full/90/default.webp")
 	flag.Parse()
 
 	if *cfg == "" {
@@ -28,9 +33,8 @@ func main() {
 
 	config, err := iiifconfig.NewConfigFromFlag(*cfg)
 
-	uri := "colorize.jpg/full/full/90/default.webp"
 	paramNames := [6]string{"identifier", "region", "size", "rotation", "quality", "format"}
-	params := strings.Split(uri, "/")
+	params := strings.Split(*uri, "/")
 
 	vars := make(map[string]string)
 
@@ -45,27 +49,27 @@ func main() {
 		}
 
 	}
-	/*
-		p := lib.IIIFQueryParser{
-			Opts: sanitize.DefaultOptions(),
-			Vars: vars,
-		}
 
-		//fmt.Println("%v", p)
+	p := iiifparser.IIIFQueryParser{
+		Opts: sanitize.DefaultOptions(),
+		Vars: vars,
+	}
 
-		iiifparams, _ := p.GetIIIFParameters()
-		//fmt.Println("%v", iiifparams)
-	*/
-	body, err := ioutil.ReadFile("/home/jens/Bilder/colorize.jpg")
+	//fmt.Println("%v", p)
+
+	identifier, _ := p.GetIIIFParameter("identifier")
+	//fmt.Println("%v", iiifparams)
+
+	body, err := ioutil.ReadFile("/home/jens/Bilder/" + identifier)
 	check(err)
 
-	image, err := lib.NewVIPSImage(body)
+	image, err := iiifimage.NewVIPSImage(body)
 	check(err)
 
-	level, err := lib.NewLevelFromConfig(config, "endpoint")
+	level, err := iiiflevel.NewLevelFromConfig(config, "endpoint")
 	check(err)
 
-	profile, err := lib.NewProfile("endpoint", image, level)
+	profile, err := iiifprofile.NewProfile("endpoint", image, level)
 	check(err)
 
 	payload, _ := json.Marshal(profile)

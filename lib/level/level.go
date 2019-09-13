@@ -1,4 +1,4 @@
-package lib
+package level
 
 /*
 
@@ -13,8 +13,8 @@ import (
 	"fmt"
 	_ "log"
 
-	iiifcompliance "github.com/jdobber/go-iiif-mod/compliance"
-	iiifconfig "github.com/jdobber/go-iiif-mod/config"
+	iiifcompliance "github.com/jdobber/go-iiif-mod/lib/compliance"
+	iiifconfig "github.com/jdobber/go-iiif-mod/lib/config"
 )
 
 type Level interface {

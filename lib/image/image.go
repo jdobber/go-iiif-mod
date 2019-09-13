@@ -1,8 +1,4 @@
-package lib
-
-import (
-	_ "log"
-)
+package image
 
 type Image interface {
 	Identifier() string

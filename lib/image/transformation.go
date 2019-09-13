@@ -1,4 +1,4 @@
-package lib
+package image
 
 import (
 	"errors"
@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	iiiflevel "github.com/jdobber/go-iiif-mod/lib/level"
 )
 
 type RegionInstruction struct {
@@ -36,7 +38,7 @@ type FormatInstruction struct {
 }
 
 type Transformation struct {
-	level    Level
+	level    iiiflevel.Level
 	Region   string
 	Size     string
 	Rotation string
@@ -44,7 +46,7 @@ type Transformation struct {
 	Format   string
 }
 
-func NewTransformation(level Level, region string, size string, rotation string, quality string, format string) (*Transformation, error) {
+func NewTransformation(level iiiflevel.Level, region string, size string, rotation string, quality string, format string) (*Transformation, error) {
 
 	var ok bool
 	var err error
