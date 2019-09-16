@@ -3,7 +3,8 @@ module github.com/jdobber/go-iiif-mod
 go 1.12
 
 require (
-	github.com/fogleman/primitive v0.0.0-20190214000000-673f57e7b1b5ae5bc415b47c76130bab35b08297
+	github.com/chai2010/webp v1.1.0
+	github.com/disintegration/imaging v1.6.1
 	github.com/go-iiif/go-iiif v1.3.1
 	github.com/gorilla/mux v1.7.1
 	github.com/labstack/echo/v4 v4.1.10

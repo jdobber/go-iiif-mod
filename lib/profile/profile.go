@@ -23,19 +23,13 @@ type Profile struct {
 
 func NewProfile(endpoint string, image iiifimage.Image, level iiiflevel.Level) (*Profile, error) {
 
-	dims, err := image.Dimensions()
-
-	if err != nil {
-		return nil, err
-	}
-
 	p := Profile{
 		Context:  "http://iiif.io/api/image/2/context.json",
 		Id:       fmt.Sprintf("%s/%s", endpoint, image.Identifier()),
 		Type:     "iiif:Image",
 		Protocol: "http://iiif.io/api/image",
-		Width:    dims.Width(),
-		Height:   dims.Height(),
+		Width:    image.Width(),
+		Height:   image.Height(),
 		Profile: []interface{}{
 			"http://iiif.io/api/image/2/level2.json",
 			level,
