@@ -29,7 +29,7 @@ type SizeInstruction struct {
 
 type RotationInstruction struct {
 	Flip         bool
-	Angle        int64
+	Angle        float64
 	NoAutoRotate bool // see notes in image/vips.go for why we need to do this (20180607/thisisaaronland)
 }
 
@@ -152,16 +152,10 @@ func (t *Transformation) HasTransformation() bool {
 	return false
 }
 
-func (t *Transformation) RegionInstructions(im Image) (*RegionInstruction, error) {
+func (t *Transformation) RegionInstructions(im *NativeImage) (*RegionInstruction, error) {
 
-	dims, err := im.Dimensions()
-
-	if err != nil {
-		return nil, err
-	}
-
-	width := dims.Width()
-	height := dims.Height()
+	width := im.Width()
+	height := im.Height()
 
 	if t.Region == "square" {
 
@@ -309,8 +303,6 @@ func (t *Transformation) RegionInstructions(im Image) (*RegionInstruction, error
 
 		return &instruction, nil
 
-	} else {
-
 	}
 
 	message := fmt.Sprintf("Unrecognized region")
@@ -318,7 +310,7 @@ func (t *Transformation) RegionInstructions(im Image) (*RegionInstruction, error
 
 }
 
-func (t *Transformation) SizeInstructions(im Image) (*SizeInstruction, error) {
+func (t *Transformation) SizeInstructions(im *NativeImage) (*SizeInstruction, error) {
 
 	sizeError := "IIIF 2.1 `size` argument is not recognized: %#v"
 
@@ -353,17 +345,8 @@ func (t *Transformation) SizeInstructions(im Image) (*SizeInstruction, error) {
 
 			if best {
 
-				// we used to use the vip/bimg "enlarge" command here but
-				// that did not work as expected (20180524/thisisaaronland)
-
-				dims, err := im.Dimensions()
-
-				if err != nil {
-					return nil, err
-				}
-
-				width := dims.Width()
-				height := dims.Height()
+				width := im.Width()
+				height := im.Height()
 
 				ratio_w := float64(w) / float64(width)
 				ratio_h := float64(h) / float64(height)
@@ -402,14 +385,8 @@ func (t *Transformation) SizeInstructions(im Image) (*SizeInstruction, error) {
 			return nil, err
 		}
 
-		dims, err := im.Dimensions()
-
-		if err != nil {
-			return nil, err
-		}
-
-		width := dims.Width()
-		height := dims.Height()
+		width := im.Width()
+		height := im.Height()
 
 		w = int(math.Ceil(pct / 100 * float64(width)))
 		h = int(math.Ceil(pct / 100 * float64(height)))
@@ -430,12 +407,15 @@ func (t *Transformation) SizeInstructions(im Image) (*SizeInstruction, error) {
 
 }
 
-func (t *Transformation) RotationInstructions(im Image) (*RotationInstruction, error) {
+func (t *Transformation) RotationInstructions(im *NativeImage) (*RotationInstruction, error) {
 
 	rotationError := "IIIF 2.1 `rotation` argument is not recognized: %#v"
 
 	flip := strings.HasPrefix(t.Rotation, "!")
-	angle, err := strconv.ParseInt(strings.Trim(t.Rotation, "!"), 10, 64)
+	angle, err := strconv.ParseFloat(strings.Trim(t.Rotation, "!"), 64)
+
+	// limit it to 0-360 degrees
+	//angle = angle % 360
 
 	if err != nil {
 		message := fmt.Sprintf(rotationError, t.Rotation)
@@ -459,7 +439,7 @@ func (t *Transformation) RotationInstructions(im Image) (*RotationInstruction, e
 	return &instruction, nil
 }
 
-func (t *Transformation) FormatInstructions(im Image) (*FormatInstruction, error) {
+func (t *Transformation) FormatInstructions(im *NativeImage) (*FormatInstruction, error) {
 
 	fmt := ""
 
