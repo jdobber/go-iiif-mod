@@ -1,16 +1,17 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 
 	iiifconfig "github.com/jdobber/go-iiif-mod/lib/config"
 	iiifimage "github.com/jdobber/go-iiif-mod/lib/image"
 	iiiflevel "github.com/jdobber/go-iiif-mod/lib/level"
 	iiifparser "github.com/jdobber/go-iiif-mod/lib/parser"
-	"github.com/whosonfirst/go-sanitize"
+	iiifprofile "github.com/jdobber/go-iiif-mod/lib/profile"
 )
 
 func check(e error) {
@@ -23,39 +24,20 @@ func main() {
 	var cfg = flag.String("config", "", "Path to a valid go-iiif config file")
 	var uri = flag.String("uri", "", "a vaild iiif uri, e.g. colorize.jpg/full/full/90/default.webp")
 	var prefix = flag.String("prefix", "", "a path to an image folder")
+	var showProfile = flag.Bool("profile", false, "print profile")
+
 	flag.Parse()
 
 	if *cfg == "" {
 		log.Fatal("Missing config file")
 	}
 
+	endpoint := "http://localhost"
+
 	config, err := iiifconfig.NewConfigFromFlag(*cfg)
 
-	paramNames := [6]string{"identifier", "region", "size", "rotation", "quality", "format"}
-	params := strings.Split(*uri, "/")
-
-	vars := make(map[string]string)
-
-	for idx, name := range paramNames {
-		if name == "quality" {
-			a := strings.Split(params[idx], ".")
-			vars["quality"] = a[0]
-			vars["format"] = a[1]
-			break
-		} else {
-			vars[name] = params[idx]
-		}
-
-	}
-
-	p := iiifparser.IIIFQueryParser{
-		Opts: sanitize.DefaultOptions(),
-		Vars: vars,
-	}
-
-	//fmt.Println("%v", p)
-
-	endpoint := "Endpoint"
+	p, err := iiifparser.NewIIIFQueryParser(*uri, nil)
+	check(err)
 
 	identifier, _ := p.GetIIIFParameter("identifier")
 	format, _ := p.GetIIIFParameter("format")
@@ -64,21 +46,19 @@ func main() {
 	body, err := ioutil.ReadFile(*prefix + identifier)
 	check(err)
 
-	//image, err := iiifimage.NewVIPSImage(body)
-	//check(err)
-
-	image, err := iiifimage.NewNativeImage(body)
+	image, err := iiifimage.NewNativeImage(identifier, body)
 	check(err)
 
 	level, err := iiiflevel.NewLevelFromConfig(config, endpoint)
 	check(err)
-	/*
+
+	if *showProfile {
 		profile, err := iiifprofile.NewProfile(endpoint, image, level)
 		check(err)
 
 		payload, _ := json.Marshal(profile)
 		fmt.Println(string(payload))
-	*/
+	}
 
 	iiifparams, err := p.GetIIIFParameters()
 	check(err)
@@ -90,9 +70,6 @@ func main() {
 		iiifparams.Quality,
 		iiifparams.Format)
 	check(err)
-
-	//uri, err := transformation.ToURI(params.Identifier)
-	//body, err := derivatives_cache.Get(uri)
 
 	if transformation.HasTransformation() {
 

@@ -3,7 +3,6 @@ package image
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	stdimage "image"
 	"image/color"
 	jpeg "image/jpeg"
@@ -16,14 +15,10 @@ import (
 // NativeImage ...
 type NativeImage struct {
 	Image
-	//config    *iiifconfig.Config
-	//source    iiifsource.Source
-	//source_id string
 	id     string
 	bimg   stdimage.Image
 	config stdimage.Config
 	format string
-	//isgif     bool
 }
 
 type EncodingOptions struct {
@@ -71,7 +66,7 @@ func (im *NativeImage) Encode(opts *EncodingOptions) ([]byte, error) {
 }
 
 // NewNativeImage ...
-func NewNativeImage(body []byte) (*NativeImage, error) {
+func NewNativeImage(id string, body []byte) (*NativeImage, error) {
 
 	reader := bytes.NewReader(body)
 	bimg, format, err := stdimage.Decode(reader)
@@ -84,14 +79,10 @@ func NewNativeImage(body []byte) (*NativeImage, error) {
 	}
 
 	im := NativeImage{
-		//config: nil,
-		//source:    nil,
-		//source_id: "",
-		id:     "anIdentifier",
+		id:     id,
 		bimg:   bimg,
 		config: config,
 		format: format,
-		//isgif:     false,
 	}
 
 	return &im, nil
@@ -102,8 +93,7 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 	if t.Region != "full" {
 
 		rgi, err := t.RegionInstructions(im)
-
-		fmt.Println("%v", rgi)
+		//fmt.Println("%v", rgi)
 
 		if err != nil {
 			return nil, err
@@ -116,7 +106,7 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 	if t.Size != "max" && t.Size != "full" {
 
 		si, err := t.SizeInstructions(im)
-		fmt.Println("%v", si)
+		//fmt.Println("%v", si)
 
 		if err != nil {
 			return nil, err
@@ -130,7 +120,7 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 	*/
 
 	ri, err := t.RotationInstructions(im)
-	fmt.Println("%v", ri)
+	//fmt.Println("%v", ri)
 
 	if err != nil {
 		return nil, err
@@ -162,8 +152,8 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 		FORMAT
 	*/
 
-	fi, err := t.FormatInstructions(im)
-	fmt.Println("%v", fi)
+	_, err = t.FormatInstructions(im)
+	//fmt.Println("%v", fi)
 
 	if err != nil {
 		return nil, err

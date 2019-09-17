@@ -3,12 +3,9 @@ package parser
 import (
 	"errors"
 	"fmt"
-	gohttp "net/http"
 	gourl "net/url"
 	"strings"
 
-	"github.com/gorilla/mux"
-	echo "github.com/labstack/echo/v4"
 	"github.com/whosonfirst/go-sanitize"
 )
 
@@ -28,37 +25,32 @@ type IIIFQueryParser struct {
 	Vars map[string]string
 }
 
-func NewIIIFQueryParser(r *gohttp.Request) (*IIIFQueryParser, error) {
+func NewIIIFQueryParser(uri string, opts *sanitize.Options) (*IIIFQueryParser, error) {
 
-	opts := sanitize.DefaultOptions()
-	vars := mux.Vars(r)
+	paramNames := [6]string{"identifier", "region", "size", "rotation", "quality", "format"}
+	params := strings.Split(uri, "/")
 
-	p := IIIFQueryParser{
-		Opts: opts,
-		Vars: vars,
-	}
-
-	return &p, nil
-}
-
-func NewIIIFQueryParser2(c echo.Context) (*IIIFQueryParser, error) {
-
-	opts := sanitize.DefaultOptions()
 	vars := make(map[string]string)
 
-	for _, name := range c.ParamNames() {
+	for idx, name := range paramNames {
 		if name == "quality" {
-			a := strings.Split(c.Param(name), ".")
+			a := strings.Split(params[idx], ".")
 			vars["quality"] = a[0]
 			vars["format"] = a[1]
+			break
 		} else {
-			vars[name] = c.Param(name)
+			vars[name] = params[idx]
 		}
 
 	}
 
+	sanitizeOpts := sanitize.DefaultOptions()
+	if opts != nil {
+		sanitizeOpts = opts
+	}
+
 	p := IIIFQueryParser{
-		Opts: opts,
+		Opts: sanitizeOpts,
 		Vars: vars,
 	}
 

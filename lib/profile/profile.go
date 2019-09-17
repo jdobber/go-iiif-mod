@@ -3,7 +3,6 @@ package profile
 import (
 	"fmt"
 
-	iiifservice "github.com/go-iiif/go-iiif/service"
 	iiifimage "github.com/jdobber/go-iiif-mod/lib/image"
 	iiiflevel "github.com/jdobber/go-iiif-mod/lib/level"
 )
@@ -18,10 +17,9 @@ type Profile struct {
 	Profile  []interface{} `json:"profile"`
 	//	Sizes    []string `json:"sizes"` // Optional, existing/supported sizes.
 	//	Tiles    []string `json:"tiles"` // Optional
-	Services []iiifservice.Service `json:"service,omitempty"`
 }
 
-func NewProfile(endpoint string, image iiifimage.Image, level iiiflevel.Level) (*Profile, error) {
+func NewProfile(endpoint string, image *iiifimage.NativeImage, level iiiflevel.Level) (*Profile, error) {
 
 	p := Profile{
 		Context:  "http://iiif.io/api/image/2/context.json",
@@ -36,12 +34,7 @@ func NewProfile(endpoint string, image iiifimage.Image, level iiiflevel.Level) (
 		},
 		//Sizes: []ProfileSize{},
 		//Tiles: []ProfileTile{},
-		Services: []iiifservice.Service{},
 	}
 
 	return &p, nil
-}
-
-func (p *Profile) AddService(s iiifservice.Service) {
-	p.Services = append(p.Services, s)
 }
