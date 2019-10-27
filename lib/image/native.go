@@ -7,6 +7,8 @@ import (
 	"image/color"
 	jpeg "image/jpeg"
 	"io"
+	"fmt"
+	"errors"
 
 	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
@@ -15,10 +17,10 @@ import (
 // NativeImage ...
 type NativeImage struct {
 	Image
-	id     string
-	bimg   stdimage.Image
-	config stdimage.Config
-	format string
+	ID     string
+	Bimg   stdimage.Image
+	Config stdimage.Config
+	Format string
 }
 
 type EncodingOptions struct {
@@ -28,41 +30,44 @@ type EncodingOptions struct {
 
 // Height ...
 func (im *NativeImage) Height() int {
-	return im.config.Height
+	return im.Config.Height
 }
 
 // Width ....
 func (im *NativeImage) Width() int {
-	return im.config.Width
+	return im.Config.Width
 }
 
 // Identifier ...
 func (im *NativeImage) Identifier() string {
-	return im.id
+	return im.ID
 }
 
 // Identifier ...
 func (im *NativeImage) Encode(opts *EncodingOptions) ([]byte, error) {
-	var b bytes.Buffer
-	w := bufio.NewWriter(&b)
+	var buf bytes.Buffer	
+	defer buf.Reset()
 
 	var err error
 
 	switch opts.Format {
 	case "jpg":
-		err = jpeg.Encode(w, im.bimg,
+		w := bufio.NewWriter(&buf)
+		err = jpeg.Encode(w, im.Bimg,
 			&jpeg.Options{
 				Quality: opts.Quality,
 			})
 	case "webp":
-		err = webp.Encode(&b, im.bimg,
+		err = webp.Encode(&buf, im.Bimg,
 			&webp.Options{
 				Lossless: false,
 				Quality:  float32(opts.Quality),
 			})
+	default:
+		return nil, errors.New(fmt.Sprintf("%s is unknown format for encoding", opts.Format))		
 	}
 
-	return b.Bytes(), err
+	return buf.Bytes(), err
 }
 
 // NewNativeImage ...
@@ -79,10 +84,10 @@ func NewNativeImage(id string, body []byte) (*NativeImage, error) {
 	}
 
 	im := NativeImage{
-		id:     id,
-		bimg:   bimg,
-		config: config,
-		format: format,
+		ID:     id,
+		Bimg:   bimg,
+		Config: config,
+		Format: format,
 	}
 
 	return &im, nil
@@ -99,7 +104,7 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 			return nil, err
 		}
 
-		im.bimg = imaging.Crop(im.bimg, stdimage.Rect(rgi.X, rgi.Y, rgi.X+rgi.Width, rgi.Y+rgi.Height))
+		im.Bimg = imaging.Crop(im.Bimg, stdimage.Rect(rgi.X, rgi.Y, rgi.X+rgi.Width, rgi.Y+rgi.Height))
 
 	}
 
@@ -112,7 +117,7 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 			return nil, err
 		}
 
-		im.bimg = imaging.Resize(im.bimg, si.Width, si.Height, imaging.Box)
+		im.Bimg = imaging.Resize(im.Bimg, si.Width, si.Height, imaging.Box)
 	}
 
 	/*
@@ -127,11 +132,11 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 	}
 
 	if ri.Flip {
-		im.bimg = imaging.FlipH(im.bimg)
+		im.Bimg = imaging.FlipH(im.Bimg)
 	}
 
 	if ri.Angle != 0 {
-		im.bimg = imaging.Rotate(im.bimg, -ri.Angle, color.White)
+		im.Bimg = imaging.Rotate(im.Bimg, -ri.Angle, color.White)
 	}
 
 	/*
@@ -142,10 +147,10 @@ func (im *NativeImage) Transform(t *Transformation) (*NativeImage, error) {
 	case "grey":
 		fallthrough
 	case "gray":
-		im.bimg = imaging.Grayscale(im.bimg)
+		im.Bimg = imaging.Grayscale(im.Bimg)
 	case "bitonal":
-		im.bimg = imaging.Grayscale(im.bimg)
-		im.bimg = imaging.AdjustContrast(im.bimg, 100)
+		im.Bimg = imaging.Grayscale(im.Bimg)
+		im.Bimg = imaging.AdjustContrast(im.Bimg, 100)
 	}
 
 	/*

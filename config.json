@@ -1,11 +1,6 @@
 {
 	"level": {
 		"compliance": "2"
-	},	
-	"graphics": {
-		"source": {
-			"name": "VIPS"
-		}
 	},
 	"features": {
 		"enable": {
@@ -16,7 +11,6 @@
 				"webp"				
 			],
 			"rotation": [
-				"noAutoRotate",
 				"rotationArbitrary"
 			],
 			"quality": [
@@ -29,22 +23,5 @@
 				"png"				
 			]
 		}		
-	},
-	"images": {
-		"source": {
-			"name": "MINIO",
-			"prefix": "http://127.0.0.1:4000",
-			"path": "iiif",
-			"region": "us-east-1",
-			"credentials": "env:"
-		},
-		"cache": {
-			"name": "Memory",
-			"ttl": 300,
-			"limit": 100
-		}
-	},
-	"derivatives": {
-		"cache": { "name": "Disk", "path": "example/cache" }
-	}
+	}	
 }
