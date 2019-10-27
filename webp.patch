@@ -1,0 +1,38 @@
+diff --git a/capi.go b/capi.go
+index da9265f..3c8826b 100644
+--- a/capi.go
++++ b/capi.go
+@@ -18,7 +18,7 @@ package webp
+ #cgo CFLAGS: -I./internal/libwebp-1.0.2/
+ #cgo CFLAGS: -I./internal/libwebp-1.0.2/src/
+ #cgo CFLAGS: -I./internal/include/
+-#cgo CFLAGS: -Wno-pointer-sign -DWEBP_USE_THREAD
++#cgo CFLAGS: -Wno-pointer-sign -DWEBP_USE_THREAD -pthread -msse4.1 -DWEBP_HAVE_SSE41 -msse2 -DWEBP_HAVE_SSE2
+ #cgo !windows LDFLAGS: -lm
+ 
+ #include "webp.h"
+diff --git a/go.mod b/go.mod
+index 72953de..aec5d65 100644
+--- a/go.mod
++++ b/go.mod
+@@ -2,4 +2,6 @@
+ // Use of this source code is governed by a Apache-style
+ // license that can be found in the LICENSE file.
+ 
+-module "github.com/chai2010/webp"
++module github.com/chai2010/webp
++
++require golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a
+diff --git a/internal/libwebp-1.0.2/src/enc/config_enc.c b/internal/libwebp-1.0.2/src/enc/config_enc.c
+index 9d48289..4991e9b 100644
+--- a/internal/libwebp-1.0.2/src/enc/config_enc.c
++++ b/internal/libwebp-1.0.2/src/enc/config_enc.c
+@@ -31,7 +31,7 @@ int WebPConfigInitInternal(WebPConfig* config,
+   config->quality = quality;
+   config->target_size = 0;
+   config->target_PSNR = 0.;
+-  config->method = 4;
++  config->method = 2;
+   config->sns_strength = 50;
+   config->filter_strength = 60;   // mid-filtering
+   config->filter_sharpness = 0;
