@@ -4,6 +4,8 @@ import (
 	_ "fmt"
 	_ "log"
 
+	"sort"
+
 	iiifcompliance "github.com/jdobber/go-iiif-mod/lib/compliance"
 
 	iiifconfig "github.com/jdobber/go-iiif-mod/lib/config"
@@ -25,10 +27,19 @@ func NewLevel2(config *iiifconfig.Config, endpoint string) (*Level2, error) {
 		return nil, err
 	}
 
+	formats := compliance.Formats()
+	sort.Strings(formats)
+
+	qualities := compliance.Qualities()
+	sort.Strings(qualities)
+
+	supports := compliance.Supports()
+	sort.Strings(supports)
+
 	l := Level2{
-		Formats:    compliance.Formats(),
-		Qualities:  compliance.Qualities(),
-		Supports:   compliance.Supports(),
+		Formats:    formats,
+		Qualities:  qualities,
+		Supports:   supports,
 		compliance: compliance,
 	}
 
