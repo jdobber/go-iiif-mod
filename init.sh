@@ -24,7 +24,7 @@ popd
 
 popd
 echo "Modifying go.mod"
-go mod edit -replace github.com/chai2010/webp=.deps/webp-1.1.0
+go mod edit -replace github.com/chai2010/webp=$(pwd)/.deps/webp-1.1.0
 
 echo "DONE"
 echo -e "Now build the test program:\n\ngo build -o bin/test main.go\n"
